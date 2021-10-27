@@ -39,6 +39,9 @@ config = script.get_config()
 def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
     # global familyMonitor
     script.set_envvar('FamilyMonitor', True)
+    button_icon = script_cmp.get_bundle_file('on.png')
+    ui_button_cmp.set_icon(button_icon, icon_size=ICON_MEDIUM)
+
     #script.toggle_icon(script.set_envvar('FamilyMonitor', True))
     def FamilySizeControl_function(sender, args):
         # global familyMonitor
@@ -99,7 +102,7 @@ if __name__ == '__main__':
             state = not script.get_envvar('FamilyMonitor')
             script.set_envvar('FamilyMonitor', state)
             script.toggle_icon(script.get_envvar('FamilyMonitor'))
-            TaskDialog.Show("Failed", "Monitoring disabled")
+            TaskDialog.Show("Success", "Monitoring disabled")
         else:
             TaskDialog.Show("Failed", "Failed to disable monitoring")
     else:

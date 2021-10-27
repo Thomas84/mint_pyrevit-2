@@ -1,5 +1,4 @@
-import bs4, clr, math
-from bs4 import BeautifulSoup
+import clr, math
 from Autodesk.Revit.DB import BuiltInCategory, ElementId, XYZ, Point, Transform, Line, Transaction, \
     GeometryCreationUtilities, CurveLoop, Arc, Plane, Line, Frame, CurveLoop, DirectShapeLibrary, DirectShape,\
     DirectShapeType, Curve, VertexPair, SolidOptions, FilteredElementCollector, BuiltInParameter, BasePoint

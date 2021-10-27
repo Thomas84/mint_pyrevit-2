@@ -21,10 +21,13 @@ from System import TimeSpan
 from System.Windows.Threading import DispatcherTimer
 from System.Windows.Forms import MessageBox
 from Autodesk.Revit.UI import IExternalEventHandler, ExternalEvent
-from Autodesk.Revit.DB import Transaction
+
 from Autodesk.Revit.Exceptions import InvalidOperationException
 from pyrevit import script
 from Autodesk.Revit.UI.Selection import ObjectType
+from Autodesk.Revit.DB import Transaction
+clr.AddReference('System')
+from System.Collections.Generic import List
 uidoc = __revit__.ActiveUIDocument
 doc = __revit__.ActiveUIDocument.Document
 from System.Windows.Forms import SendKeys
@@ -48,7 +51,41 @@ home = expanduser("~")
 #script.set_envvar('IdleWindowTimer', 30)
 #SyncUtility.SyncandCloseRevit(__revit__, home)
 
+def GetNoPlotElement(doc, view):
+    ids = []
+    filter = DB.ElementOwnerViewFilter(view.Id)
+    eles = DB.FilteredElementCollector(doc, view.Id).WherePasses(filter).WhereElementIsNotElementType().ToElements()
+    lines = DB.FilteredElementCollector(doc, view.Id).OfCategory(DB.BuiltInCategory.OST_Lines).WhereElementIsNotElementType().ToElements()
+    for ele in eles:
+        if ele.ViewSpecific:
+            try:
+                type = ele.LookupParameter("Type").AsValueString()
+                if "NPLT" in type:
+                    ids.append(ele.Id)
+            except:
+                pass
+    for line in lines:
+        if line.ViewSpecific:
+            name = line.LineStyle.Name
+            #print(name)
+            if "NPLT" in name:
+                ids.append(line.Id)
+    return List[DB.ElementId](ids)
 
+t = Transaction(doc, 'Disable Analytical')
+t.Start()
+sheets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheet).ToElements()
+for sheet in sheets:
+    try:
+        sheet.HideElementsTemporary(GetNoPlotElement(doc, sheet))
+        placedViews = sheet.GetAllPlacedViews()
+        for placedView in placedViews:
+            doc.GetElement(placedView).HideElementsTemporary(GetNoPlotElement(doc, doc.GetElement(placedView)))
+            # doc.GetElement(placedView).HideElements(GetNoPlotElement(doc, doc.GetElement(placedView)))
+    except:
+        pass
+t.Commit()
+'''
 def get_selected_elements(doc):
     """API change in Revit 2016 makes old method throw an error"""
     try:
@@ -81,7 +118,7 @@ for sel in selection:
         pass
 
 t.Commit()
-'''
+
 def OnCheckActivityTick(sender, args):
     #print(str(System.DateTime.UtcNow))
     #print("123")

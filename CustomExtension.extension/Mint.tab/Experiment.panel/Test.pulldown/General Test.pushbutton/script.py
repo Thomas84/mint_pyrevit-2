@@ -14,15 +14,9 @@ from pyrevit import revit, DB, forms
 clr. AddReferenceByPartialName('PresentationCore')
 clr.AddReferenceByPartialName('PresentationFramework')
 clr.AddReferenceByPartialName('System.Windows.Forms')
+from pyrevit import script
 import System.Windows.Forms
 uidoc = __revit__.ActiveUIDocument
 doc = __revit__.ActiveUIDocument.Document
 
-t = Transaction(doc, 'Tag Selected Element')
-t.Start()
-selection = Selection.get_selected_elements(doc)
-for a in selection:
-    location = a.Location
-    IndependentTag.Create(doc, doc.ActiveView.Id, Reference(a), True, TagMode.TM_ADDBY_MULTICATEGORY, TagOrientation.Horizontal, location.Point)
-    print(location.Point)
-t.Commit()
+print(script.get_envvar('IdleOver'))

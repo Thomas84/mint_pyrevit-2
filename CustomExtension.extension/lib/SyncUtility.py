@@ -31,14 +31,19 @@ def SyncandCloseRevit(uiapp, home):
             if not document.Title == uiapp.ActiveUIDocument.Document.Title:
                 document.Close()
         elif not document.IsLinked:
-            #if document.PathName:
             try:
-                document.Save()
+                try:
+                    document.Save()
+                except:
+                    if document.IsFamilyDocument:
+                        document.SaveAs(home + "\\" + document.Title + ".rfa", saveOp)
+                    else:
+                        document.SaveAs(home + "\\" + document.Title + ".rvt", saveOp)
+                finally:
+                    if not document.Title == uiapp.ActiveUIDocument.Document.Title:
+                        document.Close()
             except:
-                document.SaveAs(home + "\\" + document.Title + ".rfa", saveOp)
-            finally:
-                if not document.Title == uiapp.ActiveUIDocument.Document.Title:
-                    document.Close()
+                pass
         else:
             pass
     process = System.Diagnostics.Process.GetCurrentProcess()
