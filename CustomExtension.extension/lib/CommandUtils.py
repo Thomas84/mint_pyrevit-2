@@ -41,6 +41,44 @@ class WarningConstructor:
         self.Link2Text = None
         self.Link3Text = None
 
+#<editor-fold desc="Import Warning Replacement">
+def PrintWorsetWindow():
+    ImportCadWarning = TaskDialog("Import CAD Warning")
+    ImportCadWarning.MainIcon = UI.TaskDialogIcon.TaskDialogIconWarning
+    ImportCadWarning.Title = "Import CAD Warning"
+    ImportCadWarning.TitleAutoPrefix = True
+    ImportCadWarning.AllowCancellation = False
+
+    ImportCadWarning.MainInstruction = "You are printing with some Worksets closed. " \
+                                       "KPF Digital Practice recommend opening all worksets before you print. " \
+                                       "Visibility of Worksets should be managed by view templates rather than closing worksets."
+    ImportCadWarning.ExpandedContent = None
+    #ImportCadWarning.ExpandedContent = "This is 'ExpandedContent'.\nLine1: blar blar...\nLine2: blar blar...\nLine3: blar blar...";
+
+    #ImportCadWarning.VerificationText = "This is 'VerificationText'."
+
+    ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink1, "Yes, I want to open and manage the worksets.")
+    ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink2, "Ok, Cancel print for me.")
+    ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink3, "No, I still want to proceed to print.")
+
+    ImportCadWarning.CommonButtons = UI.TaskDialogCommonButtons.None
+    return ImportCadWarning
+
+def PrintWorsetReplacement(sender, args):
+    coll = DB.FilteredWorksetCollector(args.ActiveDocument).OfKind(DB.WorksetKind.UserWorkset)
+    list = []
+    for c in coll:
+        if not c.IsOpen:
+            list.append(c.Name + "  " + "Closed")
+    if list:
+        result = ImportWarningWindow().Show()
+        if result == UI.TaskDialogResult.CommandLink1:
+            __revit__.PostCommand(UI.RevitCommandId.LookupPostableCommandId(UI.PostableCommand.Worksets))
+            args.Cancel = True
+        elif result == UI.TaskDialogResult.CommandLink2:
+            args.Cancel = True
+        elif result == UI.TaskDialogResult.CommandLink3:
+            args.Cancel = False
 
 #<editor-fold desc="Import Warning Replacement">
 def ImportWarningWindow():
@@ -56,7 +94,7 @@ def ImportWarningWindow():
 
     #ImportCadWarning.VerificationText = "This is 'VerificationText'."
 
-    ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink1, "Yes, I want to use Link CAD instead.")
+    ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink1, "Yes, I want to manage open worksets.")
     ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink2, "Ok, Cancel this for me.")
     ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink3, "No, I still want to proceed.")
 
@@ -152,8 +190,8 @@ def OverrideGraphicsWindow():
     HideElementWarning.TitleAutoPrefix = True
     HideElementWarning.AllowCancellation = False
 
-    HideElementWarning.MainInstruction = "Override Graphic in View Command is strongly discouraged by KPF Digital Practice. " \
-                                         "It will cause confusion for you colleagues, BIM Specialists and your future self. " \
+    HideElementWarning.MainInstruction = "Override Graphic in View command is strongly discouraged by KPF Digital Practice. " \
+                                         "It will cause confusion for your colleagues, BIM Specialists and your future self. " \
                                          "Please use View templates or View Specific Visibility/Graphics or Filter instead."
     HideElementWarning.ExpandedContent = None
 

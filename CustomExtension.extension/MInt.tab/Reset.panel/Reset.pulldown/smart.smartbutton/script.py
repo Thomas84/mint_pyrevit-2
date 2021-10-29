@@ -154,6 +154,8 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
                                                     CommandUtils.OverrideGraphicsReplacement)
     overrideGraphicsByCategory = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.OverrideByCategory,
                                                     CommandUtils.OverrideGraphicsReplacement)
+    overridePrint = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.Print,
+                                                                 CommandUtils.PrintWorsetReplacement)
     #TODO: Uncheck Anlytical
     # Revit Log
     __rvt__.Application.ApplicationInitialized += EventHandler[DB.Events.ApplicationInitializedEventArgs](app_start_log)

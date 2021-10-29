@@ -72,6 +72,23 @@ def GetNoPlotElement(doc, view):
                 ids.append(line.Id)
     return List[DB.ElementId](ids)
 
+worksetTable = doc.GetWorksetTable()
+#activeId = worksetTable.GetActiveWorksetId()
+#workset = worksetTable.GetWorkset(activeId)
+#print(workset)
+
+
+coll = DB.FilteredWorksetCollector(doc).OfKind(DB.WorksetKind.UserWorkset)
+list = []
+for c in coll:
+    if not c.IsOpen:
+        list.append(c.Name + "  " + "Closed")
+if list:
+    __revit__.PostCommand(UI.RevitCommandId.LookupPostableCommandId(UI.PostableCommand.Print))
+
+#for workset in worksetTable:
+#    print(workset)
+'''
 t = Transaction(doc, 'Disable Analytical')
 t.Start()
 sheets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheet).ToElements()
@@ -85,7 +102,7 @@ for sheet in sheets:
     except:
         pass
 t.Commit()
-'''
+
 def get_selected_elements(doc):
     """API change in Revit 2016 makes old method throw an error"""
     try:

@@ -65,11 +65,11 @@ class SimpleEventHandler(IExternalEventHandler):
 
 
 
-windowCheckInterval = 1  # Interval to check time
+windowCheckInterval = 15  # Interval to check time
 # WPF for Idle Monitoring
 # WPF for Idle Monitoring
 class ModelessForm(WPFWindow):
-    idleTime = 1  # Time span allowed to be idle in minutes
+    idleTime = 180  # Time span allowed to be idle in minutes
     idleWindowCountdown = 300  # Idle Window show time in seconds
     windowTimer = DispatcherTimer()
     handler = ()
@@ -92,9 +92,14 @@ class ModelessForm(WPFWindow):
         # if script.get_envvar('IdleShow') == 1:
         # if datetime.datetime.now() > script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=1):
         #and script.get_envvar('IdleShow') == 1
-        if script.get_envvar('IdleShow') == 1 and script.get_envvar('IdleOver') is True and \
-                (datetime.datetime.now() >=
-                 script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=self.idleTime)):
+        today8am = datetime.datetime.now().replace(hour=8, minute=0, second=0, microsecond=0)
+        today8pm = datetime.datetime.now().replace(hour=20, minute=0, second=0, microsecond=0)
+        weekno = datetime.datetime.today().weekday()
+
+        if script.get_envvar('IdleShow') == 1 and \
+                script.get_envvar('IdleOver') is True and \
+                (datetime.datetime.now() >= script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=self.idleTime)):
+                # (today8am <= datetime.datetime.now() <= today8pm is False or weekno > 4) and\
             #SendKeys.SendWait("{ESC}")
             script.set_envvar('IdleWindowTimer', self.idleWindowCountdown)
             self.simple_text.Text = "Are you still there?"
@@ -145,7 +150,7 @@ def OnCheckActivityTick(sender, args):
     modeless_form = ModelessForm("ModelessForm.xaml")
 
 
-def DialogShwoing(sender, args):
+def DialogShowing(sender, args):
     if script.get_envvar('IdleOverwrite') != 0:
         args.OverrideResult(script.get_envvar('IdleOverwrite'))
 
@@ -177,11 +182,12 @@ script.set_envvar('IdleShow', 1)
 script.set_envvar('IdleOver', True)
 update_time()
 
-__revit__.DialogBoxShowing += EventHandler[UI.Events.DialogBoxShowingEventArgs](DialogShwoing)
+__revit__.DialogBoxShowing += EventHandler[UI.Events.DialogBoxShowingEventArgs](DialogShowing)
 __revit__.Application.DocumentChanged += EventHandler[DB.Events.DocumentChangedEventArgs](
     document_changed_idle_function)
 __revit__.ViewActivated += EventHandler[UI.Events.ViewActivatedEventArgs](view_activated_idle_function)
 __revit__.Application.DocumentOpened += EventHandler[DB.Events.DocumentOpenedEventArgs](document_opened_idle_function)
 __revit__.Application.DocumentSynchronizedWithCentral += EventHandler[
     DB.Events.DocumentSynchronizedWithCentralEventArgs](document_synced_idle_function)
+
 #modeless_form = ModelessForm("ModelessForm.xaml")
