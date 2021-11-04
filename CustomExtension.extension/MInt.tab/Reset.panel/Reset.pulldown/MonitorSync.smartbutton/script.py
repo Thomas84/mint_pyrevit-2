@@ -47,14 +47,13 @@ def GetRibbonbyId(id):
     return None
 
 
-# FIXME: need to figure out a way to fix the icon sizing of toggle buttons
 def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
     # SetUpConfigFile()
     global navigationLock
     navigationLock = False
     global syncTimer
     syncTimer = [120, 90, 60, 30]
-    # syncTimer = [4, 3, 2, 1]
+    #syncTimer = [4, 3, 2, 1]
     global monitorModels
     monitorModels = {}
     global collaborateTab
@@ -105,6 +104,20 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
                 navigationLock = True
             else:
                 navigationLock = False
+    def document_closing_sync_function(sender, args):
+        documentTitle = args.Document.Title
+        documentCode = str(args.Document.GetHashCode())
+        # WriteModelOpenTimeConfig(documentTitle, documentCode, time)
+        if args.Document.IsWorkshared and not args.Document.IsLinked and not args.Document.IsFamilyDocument:
+            RemoveModelOpenTime(documentTitle, documentCode)
+
+    def document_closed_sync_function(sender, args):
+        global navigationLock
+        # WriteModelOpenTimeConfig(documentTitle, documentCode, time)
+        if sender.Documents.IsEmpty:
+            ChangeRibbonColor(4)
+            navigationLock = False
+
 
     def view_activated_sync_function(sender, args):
         global navigationLock
@@ -113,7 +126,7 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
         documentTitle = args.Document.Title
         documentCode = str(args.Document.GetHashCode())
         # TaskDialog.Show(documentTitle, args.Document.GetWorksharingCentralModelPath())
-        if args.Document.IsModified:
+        if args.Document.IsModified and not args.Document.IsLinked and not args.Document.IsFamilyDocument:
             lock = CheckSyncTime(documentTitle, documentCode, time, syncTimer)
             if lock:
                 navigationLock = True
@@ -126,6 +139,13 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
     def WriteModelOpenTime(model, hashcode, time):
         global monitorModels
         monitorModels[hashcode + "_" + model] = time
+
+    def RemoveModelOpenTime(model, hashcode):
+        global monitorModels
+        try:
+            monitorModels.pop(hashcode + "_" + model)
+        except:
+            pass
 
     def LocktoCollabToolBar(sender, args):
         global navigationLock
@@ -192,8 +212,12 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
     if not os.path.isfile(prlxAppAddin) and not os.path.isfile(prlxProgramAddin):
         __rvt__.Application.DocumentOpened += EventHandler[DB.Events.DocumentOpenedEventArgs](document_opened_sync_function)
         __rvt__.Application.DocumentSynchronizedWithCentral += EventHandler[DB.Events.DocumentSynchronizedWithCentralEventArgs](document_synced_sync_function)
-        Autodesk.Windows.ComponentManager.UIElementActivated += EventHandler[ Autodesk.Windows.UIElementActivatedEventArgs](LocktoCollabToolBar)
+        Autodesk.Windows.ComponentManager.UIElementActivated += EventHandler[Autodesk.Windows.UIElementActivatedEventArgs](LocktoCollabToolBar)
         __rvt__.Application.DocumentChanged += EventHandler[DB.Events.DocumentChangedEventArgs](document_changed_sync_function)
+        __rvt__.Application.DocumentClosing += EventHandler[DB.Events.DocumentClosingEventArgs](
+            document_closing_sync_function)
+        __rvt__.Application.DocumentClosed += EventHandler[DB.Events.DocumentClosedEventArgs](
+            document_closed_sync_function)
         __rvt__.ViewActivated += EventHandler[UI.Events.ViewActivatedEventArgs](view_activated_sync_function)
     return True
 

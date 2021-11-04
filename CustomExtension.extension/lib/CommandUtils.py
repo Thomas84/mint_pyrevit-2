@@ -71,7 +71,7 @@ def PrintWorsetReplacement(sender, args):
         if not c.IsOpen:
             list.append(c.Name + "  " + "Closed")
     if list:
-        result = ImportWarningWindow().Show()
+        result = PrintWorsetWindow().Show()
         if result == UI.TaskDialogResult.CommandLink1:
             __revit__.PostCommand(UI.RevitCommandId.LookupPostableCommandId(UI.PostableCommand.Worksets))
             args.Cancel = True
