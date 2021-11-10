@@ -49,9 +49,9 @@ def PrintWorsetWindow():
     ImportCadWarning.TitleAutoPrefix = True
     ImportCadWarning.AllowCancellation = False
 
-    ImportCadWarning.MainInstruction = "You are printing with some Worksets closed. " \
+    ImportCadWarning.MainInstruction = "Warning: You are printing with some worksets closed. " \
                                        "KPF Digital Practice recommend opening all worksets before you print. " \
-                                       "Visibility of Worksets should be managed by view templates rather than closing worksets."
+                                       "Visibility of worksets should be managed by view templates rather than closing worksets."
     ImportCadWarning.ExpandedContent = None
     #ImportCadWarning.ExpandedContent = "This is 'ExpandedContent'.\nLine1: blar blar...\nLine2: blar blar...\nLine3: blar blar...";
 
