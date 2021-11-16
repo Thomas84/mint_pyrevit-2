@@ -43,9 +43,9 @@ class WarningConstructor:
 
 #<editor-fold desc="Import Warning Replacement">
 def PrintWorsetWindow():
-    ImportCadWarning = TaskDialog("Import CAD Warning")
+    ImportCadWarning = TaskDialog("Print with Workset Closed Warning")
     ImportCadWarning.MainIcon = UI.TaskDialogIcon.TaskDialogIconWarning
-    ImportCadWarning.Title = "Import CAD Warning"
+    ImportCadWarning.Title = "Print with Workset Closed Warning"
     ImportCadWarning.TitleAutoPrefix = True
     ImportCadWarning.AllowCancellation = False
 

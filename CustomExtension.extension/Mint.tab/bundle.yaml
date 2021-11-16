@@ -1,8 +1,9 @@
 layout:
   - General
+  - Resources
   - Select
   - Modification
-  - Items
+  - Documentation
   - Fix Warnings
   - Project
   - MEP Tools
