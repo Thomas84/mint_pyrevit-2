@@ -92,27 +92,26 @@ class ModelessForm(WPFWindow):
         # if script.get_envvar('IdleShow') == 1:
         # if datetime.datetime.now() > script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=1):
         #and script.get_envvar('IdleShow') == 1
-        today8am = datetime.datetime.now().replace(hour=8, minute=0, second=0, microsecond=0)
-        today8pm = datetime.datetime.now().replace(hour=20, minute=0, second=0, microsecond=0)
+        todayEnd = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=0)
+        today9pm = datetime.datetime.now().replace(hour=21, minute=0, second=0, microsecond=0)
         weekno = datetime.datetime.today().weekday()
 
-        if script.get_envvar('IdleShow') == 1 and \
-                script.get_envvar('IdleOver') is True and \
+        if script.get_envvar('IdleShow') == 1 and script.get_envvar('IdleOver') is True and \
                 (datetime.datetime.now() >= script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=self.idleTime)):
-                # (today8am <= datetime.datetime.now() <= today8pm is False or weekno > 4) and\
-            #SendKeys.SendWait("{ESC}")
-            script.set_envvar('IdleWindowTimer', self.idleWindowCountdown)
-            self.simple_text.Text = "Are you still there?"
-            self.close_text.Text = "This Window will close in {0} seconds.".format(str(self.idleWindowCountdown))
-            # self.simple_text.Text = script.get_envvar('IdleTest')
-            self.Show()
-            self.handler = EventHandler(OnWindowTimerTick)
-            self.windowTimer.Tick += self.handler
-            self.windowTimer.Interval = TimeSpan(0, 0, 1)
-            self.windowTimer.Start()
+            if (today9pm <= datetime.datetime.now() <= todayEnd is True):
+                #SendKeys.SendWait("{ESC}")
+                script.set_envvar('IdleWindowTimer', self.idleWindowCountdown)
+                self.simple_text.Text = "Are you still there?"
+                self.close_text.Text = "This Window will close in {0} seconds.".format(str(self.idleWindowCountdown))
+                # self.simple_text.Text = script.get_envvar('IdleTest')
+                self.Show()
+                self.handler = EventHandler(OnWindowTimerTick)
+                self.windowTimer.Tick += self.handler
+                self.windowTimer.Interval = TimeSpan(0, 0, 1)
+                self.windowTimer.Start()
 
-            script.set_envvar('IdleShow', 0)  # Show Parameter to prevent the window showing twice
-            script.set_envvar('IdleOverwrite', 7)  # Overwrite Dialog result for sync workset tool
+                script.set_envvar('IdleShow', 0)  # Show Parameter to prevent the window showing twice
+                script.set_envvar('IdleOverwrite', 7)  # Overwrite Dialog result for sync workset tool
 
     def yes_click(self, sender, e):
         # This Raise() method launch a signal to Revit to tell him you want to do something in the API context
@@ -183,8 +182,7 @@ script.set_envvar('IdleOver', True)
 update_time()
 
 __revit__.DialogBoxShowing += EventHandler[UI.Events.DialogBoxShowingEventArgs](DialogShowing)
-__revit__.Application.DocumentChanged += EventHandler[DB.Events.DocumentChangedEventArgs](
-    document_changed_idle_function)
+__revit__.Application.DocumentChanged += EventHandler[DB.Events.DocumentChangedEventArgs](document_changed_idle_function)
 __revit__.ViewActivated += EventHandler[UI.Events.ViewActivatedEventArgs](view_activated_idle_function)
 __revit__.Application.DocumentOpened += EventHandler[DB.Events.DocumentOpenedEventArgs](document_opened_idle_function)
 __revit__.Application.DocumentSynchronizedWithCentral += EventHandler[
