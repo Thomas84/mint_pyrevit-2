@@ -48,3 +48,34 @@ def SyncandCloseRevit(uiapp, home):
             pass
     process = System.Diagnostics.Process.GetCurrentProcess()
     process.Kill()
+
+def SyncandSaveRevit(uiapp, home):
+    activeDocuments = uiapp.Application.Documents
+    syncOption = SynchronizeWithCentralOptions()
+    transOption = TransactWithCentralOptions()
+    relinquishOption = RelinquishOptions(True)
+    syncOption.SetRelinquishOptions(relinquishOption)
+    syncOption.SaveLocalBefore = True
+    syncOption.Comment = "idleAutoSync"
+
+    saveOp = SaveAsOptions()
+
+    saveOp.OverwriteExistingFile = True
+    saveOp.MaximumBackups = 1
+
+    for document in activeDocuments:
+        if not document.IsFamilyDocument and not document.IsLinked and document.IsWorkshared:
+            document.SynchronizeWithCentral(transOption, syncOption)
+        elif not document.IsLinked:
+            try:
+                try:
+                    document.Save()
+                except:
+                    if document.IsFamilyDocument:
+                        document.SaveAs(home + "\\" + document.Title + ".rfa", saveOp)
+                    else:
+                        document.SaveAs(home + "\\" + document.Title + ".rvt", saveOp)
+            except:
+                pass
+        else:
+            pass

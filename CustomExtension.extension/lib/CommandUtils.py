@@ -94,7 +94,7 @@ def ImportWarningWindow():
 
     #ImportCadWarning.VerificationText = "This is 'VerificationText'."
 
-    ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink1, "Yes, I want to manage open worksets.")
+    ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink1, "Yes, I use Link CAD Instead.")
     ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink2, "Ok, Cancel this for me.")
     ImportCadWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink3, "No, I still want to proceed.")
 

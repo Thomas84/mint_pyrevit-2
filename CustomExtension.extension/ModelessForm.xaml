@@ -7,7 +7,7 @@
         <TextBlock x:Name="close_text" Text="" Grid.Column="0" HorizontalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
             <Button Content="Yes" HorizontalAlignment="Stretch" Width = "80" Height="30" Margin="10,10" Click="yes_click"/>
-            <Button Content="No, Sync and Close" HorizontalAlignment="Stretch" Width = "120" Height="30" Margin="10,10" Click="no_click"/>
+            <Button x:Name="no_button" Content="No, Sync and Close" HorizontalAlignment="Stretch" Width = "120" Height="30" Margin="10,10" Click="no_click"/>
         </StackPanel>
     </StackPanel>
 </Window>

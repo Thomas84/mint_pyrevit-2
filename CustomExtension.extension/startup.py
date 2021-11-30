@@ -18,7 +18,6 @@ from pyrevit import script
 import SyncUtility
 from os.path import expanduser
 
-
 doc = rpw.revit.doc
 uidoc = rpw.revit.uidoc
 home = expanduser("~")
@@ -32,13 +31,26 @@ def yes_click():
     script.set_envvar('IdleShow', 1)
     script.set_envvar('IdleOverwrite', 0)
     script.set_envvar('LastActiveTime', datetime.datetime.now())
-
-
+'''
 def no_click():
     script.set_envvar('IdleShow', 0)
     script.set_envvar('IdleOverwrite', 7)
     SyncUtility.SyncandCloseRevit(__revit__, home)
     script.set_envvar('LastActiveTime', datetime.datetime.now())
+'''
+def no_click():
+    script.set_envvar('IdleShow', 0)
+    script.set_envvar('IdleOverwrite', 7)
+    todayEnd = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=0)
+    today9pm = datetime.datetime.now().replace(hour=21, minute=0, second=0, microsecond=0)
+    if today9pm <= datetime.datetime.now() <= todayEnd is True:
+        SyncUtility.SyncandCloseRevit(__revit__, home)
+    else:
+        SyncUtility.SyncandSaveRevit(__revit__, home)
+        script.set_envvar('IdleShow', 1)
+        script.set_envvar('IdleOverwrite', 0)
+    script.set_envvar('LastActiveTime', datetime.datetime.now())
+
 
 
 # Create a subclass of IExternalEventHandler
@@ -69,14 +81,20 @@ windowCheckInterval = 15  # Interval to check time
 # WPF for Idle Monitoring
 # WPF for Idle Monitoring
 class ModelessForm(WPFWindow):
-    idleTime = 180  # Time span allowed to be idle in minutes
-    idleWindowCountdown = 300  # Idle Window show time in seconds
+    idleTime = 15  # Time span allowed to be idle in minutes
+    idleWindowCountdown = 100  # Idle Window show time in seconds
     windowTimer = DispatcherTimer()
     handler = ()
 
     def __init__(self, xaml_file_name):
 
         WPFWindow.__init__(self, xaml_file_name)
+        # if script.get_envvar('IdleShow') == 1:
+        # if datetime.datetime.now() > script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=1):
+        #and script.get_envvar('IdleShow') == 1
+        todayEnd = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=0)
+        today9pm = datetime.datetime.now().replace(hour=21, minute=0, second=0, microsecond=0)
+        weekno = datetime.datetime.today().weekday()
 
         def OnWindowTimerTick(sender, args):
             t = script.get_envvar('IdleWindowTimer')
@@ -89,23 +107,47 @@ class ModelessForm(WPFWindow):
                 #self.Hide()
                 no_ext_event.Raise()
 
-        # if script.get_envvar('IdleShow') == 1:
-        # if datetime.datetime.now() > script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=1):
-        #and script.get_envvar('IdleShow') == 1
-        todayEnd = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=0)
-        today9pm = datetime.datetime.now().replace(hour=21, minute=0, second=0, microsecond=0)
-        weekno = datetime.datetime.today().weekday()
+        def OnWindowTimerTickSync(sender, args):
+            t = script.get_envvar('IdleWindowTimer')
+            if t >= 0:
+                if today9pm <= datetime.datetime.now() <= todayEnd is True:
+                    self.close_text.Text = "Revit will sync & close in {0} seconds.".format(str(t))
+                else:
+                    self.close_text.Text = "Revit will sync & save in {0} seconds.".format(str(t))
+                script.set_envvar('IdleWindowTimer', t - 1)
+            else:
+                self.windowTimer.Stop()
+                self.Close()
+                #self.Hide()
+                no_ext_event.Raise()
+
+
 
         if script.get_envvar('IdleShow') == 1 and script.get_envvar('IdleOver') is True and \
                 (datetime.datetime.now() >= script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=self.idleTime)):
-            if (today9pm <= datetime.datetime.now() <= todayEnd is True):
+            if today9pm <= datetime.datetime.now() <= todayEnd is True:
                 #SendKeys.SendWait("{ESC}")
                 script.set_envvar('IdleWindowTimer', self.idleWindowCountdown)
                 self.simple_text.Text = "Are you still there?"
-                self.close_text.Text = "This Window will close in {0} seconds.".format(str(self.idleWindowCountdown))
+                self.close_text.Text = "Revit will sync & close in {0} seconds.".format(str(self.idleWindowCountdown))
+                self.no_button.Content = "No, Sync and Close"
                 # self.simple_text.Text = script.get_envvar('IdleTest')
                 self.Show()
                 self.handler = EventHandler(OnWindowTimerTick)
+                self.windowTimer.Tick += self.handler
+                self.windowTimer.Interval = TimeSpan(0, 0, 1)
+                self.windowTimer.Start()
+
+                script.set_envvar('IdleShow', 0)  # Show Parameter to prevent the window showing twice
+                script.set_envvar('IdleOverwrite', 7)  # Overwrite Dialog result for sync workset tool
+            else:
+                script.set_envvar('IdleWindowTimer', self.idleWindowCountdown)
+                self.simple_text.Text = "Are you still there?"
+                self.close_text.Text = "Revit will sync & save in {0} seconds.".format(str(self.idleWindowCountdown))
+                self.no_button.Content = "No, Sync and Save"
+                # self.simple_text.Text = script.get_envvar('IdleTest')
+                self.Show()
+                self.handler = EventHandler(OnWindowTimerTickSync)
                 self.windowTimer.Tick += self.handler
                 self.windowTimer.Interval = TimeSpan(0, 0, 1)
                 self.windowTimer.Start()
@@ -170,8 +212,10 @@ def view_activated_idle_function(sender, args):
 
 yes_event_handler = SimpleEventHandler(yes_click)
 yes_ext_event = ExternalEvent.Create(yes_event_handler)
+
 no_event_handler = SimpleEventHandler(no_click)
 no_ext_event = ExternalEvent.Create(no_event_handler)
+
 
 inactivityCheckTimer = DispatcherTimer()
 inactivityCheckTimer.Tick += EventHandler(OnCheckActivityTick)
