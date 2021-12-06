@@ -21,7 +21,6 @@ from System import TimeSpan
 from System.Windows.Threading import DispatcherTimer
 from System.Windows.Forms import MessageBox
 from Autodesk.Revit.UI import IExternalEventHandler, ExternalEvent
-
 from Autodesk.Revit.Exceptions import InvalidOperationException
 from pyrevit import script
 from Autodesk.Revit.UI.Selection import ObjectType
@@ -31,6 +30,8 @@ from System.Collections.Generic import List
 uidoc = __revit__.ActiveUIDocument
 doc = __revit__.ActiveUIDocument.Document
 from System.Windows.Forms import SendKeys
+import WhiteList
+
 home = expanduser("~")
 #creamColor = System.Windows.Media.Color.FromRgb(255, 253, 208)
 #roseColor = System.Windows.Media.Color.FromRgb(247, 202, 201)
@@ -77,7 +78,8 @@ worksetTable = doc.GetWorksetTable()
 #workset = worksetTable.GetWorkset(activeId)
 #print(workset)
 
-
+print(WhiteList.WhiteList)
+'''
 coll = DB.FilteredWorksetCollector(doc).OfKind(DB.WorksetKind.UserWorkset)
 list = []
 for c in coll:
@@ -88,7 +90,7 @@ if list:
 
 #for workset in worksetTable:
 #    print(workset)
-'''
+
 t = Transaction(doc, 'Disable Analytical')
 t.Start()
 sheets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheet).ToElements()
