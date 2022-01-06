@@ -1,4 +1,5 @@
 import Logger, CommandUtils
+import WhiteList
 import getpass
 from pyrevit import script
 from pyrevit.coreutils.ribbon import ICON_MEDIUM
@@ -209,16 +210,18 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
                 panel.CustomPanelBackground = System.Windows.Media.SolidColorBrush(colors[int])
 
     # Sync Timer
-    if not os.path.isfile(prlxAppAddin) and not os.path.isfile(prlxProgramAddin):
-        __rvt__.Application.DocumentOpened += EventHandler[DB.Events.DocumentOpenedEventArgs](document_opened_sync_function)
-        __rvt__.Application.DocumentSynchronizedWithCentral += EventHandler[DB.Events.DocumentSynchronizedWithCentralEventArgs](document_synced_sync_function)
-        Autodesk.Windows.ComponentManager.UIElementActivated += EventHandler[Autodesk.Windows.UIElementActivatedEventArgs](LocktoCollabToolBar)
-        __rvt__.Application.DocumentChanged += EventHandler[DB.Events.DocumentChangedEventArgs](document_changed_sync_function)
-        __rvt__.Application.DocumentClosing += EventHandler[DB.Events.DocumentClosingEventArgs](
-            document_closing_sync_function)
-        __rvt__.Application.DocumentClosed += EventHandler[DB.Events.DocumentClosedEventArgs](
-            document_closed_sync_function)
-        __rvt__.ViewActivated += EventHandler[UI.Events.ViewActivatedEventArgs](view_activated_sync_function)
+    user = getpass.getuser()
+    if not user in WhiteList.WhiteList:
+        if not os.path.isfile(prlxAppAddin) and not os.path.isfile(prlxProgramAddin):
+            __rvt__.Application.DocumentOpened += EventHandler[DB.Events.DocumentOpenedEventArgs](document_opened_sync_function)
+            __rvt__.Application.DocumentSynchronizedWithCentral += EventHandler[DB.Events.DocumentSynchronizedWithCentralEventArgs](document_synced_sync_function)
+            Autodesk.Windows.ComponentManager.UIElementActivated += EventHandler[Autodesk.Windows.UIElementActivatedEventArgs](LocktoCollabToolBar)
+            __rvt__.Application.DocumentChanged += EventHandler[DB.Events.DocumentChangedEventArgs](document_changed_sync_function)
+            __rvt__.Application.DocumentClosing += EventHandler[DB.Events.DocumentClosingEventArgs](
+                document_closing_sync_function)
+            __rvt__.Application.DocumentClosed += EventHandler[DB.Events.DocumentClosedEventArgs](
+                document_closed_sync_function)
+            __rvt__.ViewActivated += EventHandler[UI.Events.ViewActivatedEventArgs](view_activated_sync_function)
     return True
 
 

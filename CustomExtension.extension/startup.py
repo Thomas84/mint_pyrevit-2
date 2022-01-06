@@ -16,6 +16,8 @@ from Autodesk.Revit.UI import IExternalEventHandler, ExternalEvent, TaskDialog
 from System import EventHandler, Uri
 from pyrevit import script
 import SyncUtility
+import WhiteList
+import getpass
 from os.path import expanduser
 
 doc = rpw.revit.doc
@@ -42,10 +44,11 @@ def no_click():
     script.set_envvar('IdleShow', 0)
     script.set_envvar('IdleOverwrite', 7)
     todayEnd = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=0)
-    today9pm = datetime.datetime.now().replace(hour=21, minute=0, second=0, microsecond=0)
-    if today9pm <= datetime.datetime.now() <= todayEnd is True:
+    today9pm = datetime.datetime.now().replace(hour=20, minute=50, second=0, microsecond=0)
+    if todayEnd >= datetime.datetime.now() >= today9pm:
         SyncUtility.SyncandCloseRevit(__revit__, home)
     else:
+        # SyncUtility.SyncandCloseRevit(__revit__, home)
         SyncUtility.SyncandSaveRevit(__revit__, home)
         script.set_envvar('IdleShow', 1)
         script.set_envvar('IdleOverwrite', 0)
@@ -77,23 +80,22 @@ class SimpleEventHandler(IExternalEventHandler):
 
 
 
-windowCheckInterval = 15  # Interval to check time
+windowCheckInterval = 1  # Interval to check time
 # WPF for Idle Monitoring
 # WPF for Idle Monitoring
 class ModelessForm(WPFWindow):
-    idleTime = 15  # Time span allowed to be idle in minutes
-    idleWindowCountdown = 100  # Idle Window show time in seconds
+    idleTime = 1  # Time span allowed to be idle in minutes
+    idleWindowCountdown = 300  # Idle Window show time in seconds
     windowTimer = DispatcherTimer()
     handler = ()
 
     def __init__(self, xaml_file_name):
-
         WPFWindow.__init__(self, xaml_file_name)
         # if script.get_envvar('IdleShow') == 1:
         # if datetime.datetime.now() > script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=1):
         #and script.get_envvar('IdleShow') == 1
         todayEnd = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=0)
-        today9pm = datetime.datetime.now().replace(hour=21, minute=0, second=0, microsecond=0)
+        today9pm = datetime.datetime.now().replace(hour=20, minute=50, second=0, microsecond=0)
         weekno = datetime.datetime.today().weekday()
 
         def OnWindowTimerTick(sender, args):
@@ -110,18 +112,18 @@ class ModelessForm(WPFWindow):
         def OnWindowTimerTickSync(sender, args):
             t = script.get_envvar('IdleWindowTimer')
             if t >= 0:
-                if today9pm <= datetime.datetime.now() <= todayEnd is True:
+                if todayEnd >= datetime.datetime.now() >= today9pm:
                     self.close_text.Text = "Revit will sync & close in {0} seconds.".format(str(t))
+                    self.no_button.Content = "No, Sync and Close"
                 else:
                     self.close_text.Text = "Revit will sync & save in {0} seconds.".format(str(t))
+                    self.no_button.Content = "No, Sync and Save"
                 script.set_envvar('IdleWindowTimer', t - 1)
             else:
                 self.windowTimer.Stop()
                 self.Close()
                 #self.Hide()
                 no_ext_event.Raise()
-
-
 
         if script.get_envvar('IdleShow') == 1 and script.get_envvar('IdleOver') is True and \
                 (datetime.datetime.now() >= script.get_envvar('LastActiveTime') + datetime.timedelta(minutes=self.idleTime)):
@@ -216,14 +218,15 @@ yes_ext_event = ExternalEvent.Create(yes_event_handler)
 no_event_handler = SimpleEventHandler(no_click)
 no_ext_event = ExternalEvent.Create(no_event_handler)
 
-
-inactivityCheckTimer = DispatcherTimer()
-inactivityCheckTimer.Tick += EventHandler(OnCheckActivityTick)
-inactivityCheckTimer.Interval = TimeSpan(0, windowCheckInterval, 0)
-inactivityCheckTimer.Start()
-script.set_envvar('IdleShow', 1)
-script.set_envvar('IdleOver', True)
-update_time()
+user = getpass.getuser()
+if not user in WhiteList.WhiteList:
+    inactivityCheckTimer = DispatcherTimer()
+    inactivityCheckTimer.Tick += EventHandler(OnCheckActivityTick)
+    inactivityCheckTimer.Interval = TimeSpan(0, windowCheckInterval, 0)
+    inactivityCheckTimer.Start()
+    script.set_envvar('IdleShow', 1)
+    script.set_envvar('IdleOver', True)
+    update_time()
 
 __revit__.DialogBoxShowing += EventHandler[UI.Events.DialogBoxShowingEventArgs](DialogShowing)
 __revit__.Application.DocumentChanged += EventHandler[DB.Events.DocumentChangedEventArgs](document_changed_idle_function)

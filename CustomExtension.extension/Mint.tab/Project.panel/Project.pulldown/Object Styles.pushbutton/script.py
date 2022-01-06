@@ -2,8 +2,6 @@
 import sys, clr
 import ConfigParser
 from os.path import expanduser
-
-
 from Autodesk.Revit.DB import Document, FilteredElementCollector, GraphicsStyle
 from Autodesk.Revit.DB import Level, BuiltInParameter
 clr. AddReferenceByPartialName('PresentationCore')

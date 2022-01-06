@@ -8,12 +8,12 @@ def FamilySizeCheckWindow(block):
     FamilySizeWarning.TitleAutoPrefix = True
     FamilySizeWarning.AllowCancellation = False
     if block:
-        FamilySizeWarning.MainInstruction = "Family is larger than 5MB, please clean up the family before loading into the project."
+        FamilySizeWarning.MainInstruction = "Family is larger than 10MB, please clean up the family before loading into the project."
         FamilySizeWarning.ExpandedContent = None
         FamilySizeWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink1,
                                          "Ok, I will clean up the family.")
     else:
-        FamilySizeWarning.MainInstruction = "Family is larger than 5MB, please consider clean up the family before loading into the project."
+        FamilySizeWarning.MainInstruction = "Family is larger than 10MB, please consider clean up the family before loading into the project."
         FamilySizeWarning.ExpandedContent = None
         FamilySizeWarning.AddCommandLink(UI.TaskDialogCommandLinkId.CommandLink1,
                                          "Ok, I will clean up the family.")
@@ -30,9 +30,9 @@ def FamilySizeControl_function(sender, args):
     size = os.path.getsize(args.FamilyPath + args.FamilyName + ".rfa")
     # UI.TaskDialog.Show(args.FamilyName, str(size))
     result = None
-    if size > 5242880:
+    if size > 10485760:
         result = FamilySizeCheckWindow(True).Show()
-    elif 5242880 >= size > 3145728:
+    elif 10485760 >= size > 5242880:
         result = FamilySizeCheckWindow(False).Show()
     else:
         pass

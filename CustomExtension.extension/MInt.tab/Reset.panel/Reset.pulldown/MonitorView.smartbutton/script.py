@@ -1,3 +1,5 @@
+import WhiteList
+import getpass
 from pyrevit import script, forms
 from pyrevit import DB, UI
 from System import EventHandler, Uri
@@ -20,7 +22,9 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
             t.Start()
             args.CurrentActiveView.LookupParameter('view use').Set(selSheet)
             t.Commit()
-    __rvt__.ViewActivated += EventHandler[UI.Events.ViewActivatedEventArgs](log_function)
+    user = getpass.getuser()
+    if not user in WhiteList.WhiteList:
+        __rvt__.ViewActivated += EventHandler[UI.Events.ViewActivatedEventArgs](log_function)
 
 if __name__ == '__main__':
     print('Please do not click this button again.')

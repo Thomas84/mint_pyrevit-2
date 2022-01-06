@@ -30,6 +30,7 @@ value1 = []
 value2 = []
 id = []
 # Input Parameter Name
+
 parameter1 = forms.ask_for_string(default='', prompt='Please input Original Parameter', title='Parameter Mapper')
 parameter2 = forms.ask_for_string(default='', prompt='Please input Destination Parameter', title='Parameter Mapper')
 
@@ -48,33 +49,39 @@ for x in selection:
         output = alert("The second input is not a valid parameter.")
         pass
     else:
-        if v1.StorageType == v2.StorageType:
-            if v1.StorageType == StorageType.Integer:
-                try:
-                    v2.Set(str(v1.AsInteger()))
-                    output = "integer"
-                except:
-                    print(x.Id.IntegerValue)
-            elif v1.StorageType == StorageType.String:
-                try:
-                    v2.Set(str(v1.AsString()))
-                    output = "string"
-                except:
-                    print(x.Id.IntegerValue)
-            elif v1.StorageType == StorageType.Double:
-                try:
-                    v2.Set(str(v1.AsDouble()))
-                    output = "double"
-                except:
-                    print(x.Id.IntegerValue)
-            else:
-                output = "Error"
-
-            value1.append(v1)
-            value2.append(v2)
+        #if v1.StorageType == v2.StorageType:
+        if v1.StorageType == StorageType.Integer:
+            try:
+                v2.Set(str(v1.AsInteger()))
+                output = "integer"
+            except:
+                print(x.Id.IntegerValue)
+        elif v1.StorageType == StorageType.String:
+            try:
+                v2.Set(str(v1.AsString()))
+                output = "string"
+            except:
+                print(x.Id.IntegerValue)
+        elif v1.StorageType == StorageType.Double:
+            try:
+                v2.Set(str(v1.AsDouble()))
+                output = "double"
+            except:
+                print(x.Id.IntegerValue)
+        elif v1.StorageType == StorageType.ElementId:
+            try:
+                v2.Set(str(doc.GetElement(v1.AsElementId()).Name))
+                output = "name"
+            except:
+                print(x.Id.IntegerValue)
         else:
-            output = alert("The two parameters are not the same type, try again.")
-            pass
+            output = "Error"
+
+        value1.append(v1)
+        value2.append(v2)
+        #else:
+            #output = alert("The two parameters are not the same type, try again.")
+            #pass
     t.Commit()
 
 

@@ -1,4 +1,5 @@
 import Logger, CommandUtils
+import WhiteList
 import getpass
 from pyrevit import script
 from pyrevit.coreutils.ribbon import ICON_MEDIUM
@@ -49,7 +50,7 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
             size = os.path.getsize(args.FamilyPath + args.FamilyName + ".rfa")
             # UI.TaskDialog.Show(args.FamilyName, str(size))
             result = None
-            if size > 5242880:
+            if size > 10485760:
                 result = FamilyCheck.FamilySizeCheckWindow(True).Show()
 
             else:
@@ -63,8 +64,9 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
                 pass
             else:
                 pass
-
-    __rvt__.Application.FamilyLoadingIntoDocument += EventHandler[DB.Events.FamilyLoadingIntoDocumentEventArgs](FamilySizeControl_function)
+    user = getpass.getuser()
+    if not user in WhiteList.WhiteList:
+        __rvt__.Application.FamilyLoadingIntoDocument += EventHandler[DB.Events.FamilyLoadingIntoDocumentEventArgs](FamilySizeControl_function)
     return True
 
 

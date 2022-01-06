@@ -28,5 +28,9 @@ __doc__ = 'To be run in a Revit Model.'\
           'Note: Please check the log after running this. ' \
           'Program will not modify or upgrade families despite it saying so in revit.'
 
-selection = Selection.get_selected_elements(doc)
-print(doc.GetElement(selection[0].GetRefGridLines(None, None)[0]).FullCurve.GetEndPoint(0).Z)
+# selection = Selection.get_selected_elements(doc)
+# print(doc.GetElement(selection[0].GetRefGridLines(None, None)[0]).FullCurve.GetEndPoint(0).Z)
+
+todayEnd = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=0)
+today9pm = datetime.datetime.now().replace(hour=8, minute=40, second=0, microsecond=0)
+print(todayEnd >= datetime.datetime.now() >= today9pm)

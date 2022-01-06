@@ -1,4 +1,5 @@
 import Logger, CommandUtils
+import WhiteList
 import getpass
 from pyrevit import script
 from pyrevit.coreutils.ribbon import ICON_MEDIUM

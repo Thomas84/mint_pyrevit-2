@@ -1,4 +1,4 @@
-import Logger, CommandUtils
+import Logger, CommandUtils, WhiteList
 import getpass
 from pyrevit import script
 from pyrevit.coreutils.ribbon import ICON_MEDIUM
@@ -138,24 +138,25 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
         except:
             pass
 
-
-    # Command Overwrite
-    wallOpeningUtil = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.WallOpening,
-                                                      CommandUtils.WallOpeningReplacement)
-    importCADUtil = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.ImportCAD,
-                                                    CommandUtils.ImportReplacement)
-    modelInPlaceUtil = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.ModelInPlace,
-                                                    CommandUtils.ModelInPlaceReplacement)
-    hideInViewUtil = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.HideElements,
-                                                    CommandUtils.HideElementReplacement)
-    overrideGraphicsByElement = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.OverrideByElement,
-                                                    CommandUtils.OverrideGraphicsReplacement)
-    overrideGraphicsByFilter = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.OverrideByFilter,
-                                                    CommandUtils.OverrideGraphicsReplacement)
-    overrideGraphicsByCategory = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.OverrideByCategory,
-                                                    CommandUtils.OverrideGraphicsReplacement)
-    overridePrint = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.Print,
-                                                                 CommandUtils.PrintWorsetReplacement)
+    user = getpass.getuser()
+    if not user in WhiteList.WhiteList:
+        # Command Overwrite
+        wallOpeningUtil = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.WallOpening,
+                                                          CommandUtils.WallOpeningReplacement)
+        importCADUtil = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.ImportCAD,
+                                                        CommandUtils.ImportReplacement)
+        modelInPlaceUtil = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.ModelInPlace,
+                                                        CommandUtils.ModelInPlaceReplacement)
+        hideInViewUtil = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.HideElements,
+                                                        CommandUtils.HideElementReplacement)
+        overrideGraphicsByElement = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.OverrideByElement,
+                                                        CommandUtils.OverrideGraphicsReplacement)
+        overrideGraphicsByFilter = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.OverrideByFilter,
+                                                        CommandUtils.OverrideGraphicsReplacement)
+        overrideGraphicsByCategory = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.OverrideByCategory,
+                                                        CommandUtils.OverrideGraphicsReplacement)
+        overridePrint = CommandUtils.CommandReplacement(__rvt__, UI.PostableCommand.Print,
+                                                                     CommandUtils.PrintWorsetReplacement)
     #TODO: Uncheck Anlytical
     # Revit Log
     __rvt__.Application.ApplicationInitialized += EventHandler[DB.Events.ApplicationInitializedEventArgs](app_start_log)
