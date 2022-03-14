@@ -80,11 +80,11 @@ class SimpleEventHandler(IExternalEventHandler):
 
 
 
-windowCheckInterval = 1  # Interval to check time
+windowCheckInterval = 10  # Interval to check time
 # WPF for Idle Monitoring
 # WPF for Idle Monitoring
 class ModelessForm(WPFWindow):
-    idleTime = 1  # Time span allowed to be idle in minutes
+    idleTime = 10  # Time span allowed to be idle in minutes
     idleWindowCountdown = 300  # Idle Window show time in seconds
     windowTimer = DispatcherTimer()
     handler = ()

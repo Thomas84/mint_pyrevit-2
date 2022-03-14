@@ -18,7 +18,7 @@ __doc__ = 'Create a red orb on existing Clashes, have to read off a file pre-pre
 uidoc = __revit__.ActiveUIDocument
 doc = __revit__.ActiveUIDocument.Document
 
-archive = ''
+archive = r'C:\Users\mengf\Desktop\New folder (2)\\'
 root, dirs, files = os.walk(archive).next()
 sel_archive = forms.SelectFromList.show(dirs, button_name='Select Item',
                                         multiselect=False)
